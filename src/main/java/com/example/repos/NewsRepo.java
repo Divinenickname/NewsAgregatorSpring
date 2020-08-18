@@ -6,11 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Component
+@Repository
 public interface NewsRepo extends CrudRepository<News, Integer> {
     @Query(value = "SELECT * FROM news order by pub_date asc", nativeQuery = true)
     List<News> getAll();

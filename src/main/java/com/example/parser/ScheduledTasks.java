@@ -1,8 +1,7 @@
 package com.example.parser;
 
-import com.example.exception.URLNotFoundInDBException;
-import com.example.repos.NewsRepo;
 import com.example.repos.SiteRepo;
+import com.example.services.NewsService;
 import com.rometools.rome.io.FeedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -13,23 +12,24 @@ import java.io.IOException;
 @Component
 public class ScheduledTasks {
 
-
-
     private final RSSParser parser;
     private final VCRUParser vcruParser;
-
-    private NewsRepo newsRepo;
+    @Autowired
+    private final NewsService newsService;
     private SiteRepo siteRepo;
 
-    @Autowired
-    public ScheduledTasks(NewsRepo newsRepo, SiteRepo siteRepo){
-        parser = new RSSParser(newsRepo, siteRepo);
-        vcruParser = new VCRUParser(newsRepo, siteRepo);
+    public ScheduledTasks(SiteRepo siteRepo, NewsService newsService){
+        this.siteRepo = siteRepo;
+        this.newsService = newsService;
+
+        parser = new RSSParser(siteRepo.findOneByUrl("https://news.yandex.ru/auto.rss"));
+        vcruParser = new VCRUParser(siteRepo.findOneByUrl("https://vc.ru"));
     }
 
     @Scheduled(fixedRate = 10000)
-    public void RSSScheduler() throws IOException, FeedException, URLNotFoundInDBException {
-        parser.parse("https://news.yandex.ru/auto.rss");
-        vcruParser.parse("https://vc.ru");
+    public void RSSScheduler() throws IOException, FeedException{
+        newsService.saveNewsList(newsService.removeDublicates(parser.parse()));
+        newsService.saveNewsList(newsService.removeDublicates(vcruParser.parse()));
+
     }
 }

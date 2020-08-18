@@ -1,9 +1,11 @@
 package com.example.domain;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
 public class News {
@@ -12,6 +14,7 @@ public class News {
     private Long id;
 
     @JsonView(Views.TitleLink.class)
+    @NaturalId
     private String title;
     @JsonView(Views.TitleLink.class)
     private String link;
@@ -72,5 +75,16 @@ public class News {
         this.pubDate = pubDate;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getTitle());
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        News news = (News) o;
+        return Objects.equals(title, news.title);
+    }
 }

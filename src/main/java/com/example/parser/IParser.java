@@ -1,10 +1,12 @@
 package com.example.parser;
 
-import com.example.exception.URLNotFoundInDBException;
+import com.example.domain.News;
 import com.rometools.rome.io.FeedException;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface IParser {
-    void parse(String url) throws IOException, FeedException, URLNotFoundInDBException;
+    List<News> parse() throws IOException, FeedException;
+
 }
