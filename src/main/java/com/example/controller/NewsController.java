@@ -2,9 +2,15 @@ package com.example.controller;
 
 import com.example.domain.News;
 import com.example.domain.Views;
+import com.example.domain.dto.NewsDTO;
 import com.example.repos.NewsRepo;
+import com.example.services.NewsService;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,14 +25,22 @@ import java.util.Map;
 public class NewsController {
     @Autowired
     NewsRepo newsRepo;
+    @Autowired
+    NewsService newsService;
+
+    public NewsController(NewsRepo newsRepo, NewsService newsService) {
+        this.newsRepo = newsRepo;
+        this.newsService = newsService;
+    }
 
     public NewsController() {
     }
 
-    @GetMapping(value = "/getnews")
+    @GetMapping(value = "/news")
     @ResponseBody
-    public String StringResponse(@RequestParam(value = "url") String url){
-        return url;
+    public String StringResponse(){
+        List<NewsDTO> list = newsService.findAll();
+        return list.toString();
     }
 
     @GetMapping(value = "/")
@@ -42,6 +56,7 @@ public class NewsController {
     @ResponseBody
     @JsonView(Views.TitleLink.class)
     public List<News> getNews(@RequestParam(value = "str") String str){
+
         return newsRepo.findByTitleLike(str);
     }
 }
