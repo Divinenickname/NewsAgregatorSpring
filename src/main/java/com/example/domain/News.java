@@ -85,6 +85,6 @@ public class News {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         News news = (News) o;
-        return Objects.equals(title, news.title);
+        return Objects.equals(title.toLowerCase(), news.title.toLowerCase());
     }
 }
