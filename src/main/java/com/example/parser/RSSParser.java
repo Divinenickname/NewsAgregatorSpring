@@ -2,48 +2,40 @@ package com.example.parser;
 
 import com.example.domain.News;
 import com.example.domain.Site;
-import com.example.exception.URLNotFoundInDBException;
-import com.example.repos.NewsRepo;
-import com.example.repos.SiteRepo;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class RSSParser extends AbstractParser implements IParser{
+public class RSSParser implements IParser{
+    private Site site;
 
-    NewsRepo newsRepo;
-    SiteRepo siteRepo;
-
-    @Autowired
-    public RSSParser(NewsRepo newsRepo, SiteRepo siteRepo) {
-        this.newsRepo = newsRepo;
-        this.siteRepo = siteRepo;
+    public RSSParser(Site site) {
+        this.site = site;
     }
 
-    @Override
-    public void parse(String url) throws IOException, FeedException, URLNotFoundInDBException {
-        if (!isCorrectSite(url, siteRepo)) throw new URLNotFoundInDBException("URL not found in DB");
+    public RSSParser(){}
 
-        Site site = siteRepo.findOneByUrl(url);
+
+    @Override
+    public List<News> parse() throws IOException, FeedException {
+        List<News> newsList = new ArrayList<>();
         SyndFeedInput input = new SyndFeedInput();
-        SyndFeed feed = input.build(new XmlReader(new URL(url)));
+        SyndFeed feed = input.build(new XmlReader(new URL(site.getUrl())));
         List<SyndEntry> entryList = feed.getEntries();
 
-        for (SyndEntry item : entryList){
-            if(newsRepo.findOneByTitle(item.getTitle()) == null){
-                News newsItem = new News(item.getTitle(), item.getLink(), item.getPublishedDate(), site);
-                newsRepo.save(newsItem);
-                System.out.println(item.getTitle());
-            }
+        for(SyndEntry entry : entryList){
+            News newsItem = new News(entry.getTitle(), entry.getLink(), entry.getPublishedDate(), site);
+            newsList.add(newsItem);
         }
+
+        return newsList;
     }
 }
