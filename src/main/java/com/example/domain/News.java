@@ -1,6 +1,5 @@
 package com.example.domain;
 
-import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import javax.persistence.*;
@@ -16,29 +15,30 @@ public class News {
     private String title;
     @JsonView(Views.TitleLink.class)
     private String link;
-    //@Temporal(TemporalType.DATE)
     private Date pubDate;
-    @JoinColumn(name = "site_url")
-    private String siteUrl;
 
-    public News(String title, String link, Date pubDate, String siteUrl) {
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "site_id")
+    private Site site;
+
+    public News(String title, String link, Date pubDate, Site site) {
         this.title = title;
         this.link = link;
         this.pubDate = pubDate;
-        this.siteUrl = siteUrl;
+        this.site = site;
     }
 
     public News() {
     }
 
-
-    public String getSiteUrl() {
-        return siteUrl;
+    public Site getSite() {
+        return site;
     }
 
-    public void setSiteUrl(String siteUrl) {
-        this.siteUrl = siteUrl;
+    public void setSite(Site site) {
+        this.site = site;
     }
+
 
     public String getTitle() {
         return title;
