@@ -15,29 +15,30 @@ public class News {
     private String title;
     @JsonView(Views.TitleLink.class)
     private String link;
-    //@Temporal(TemporalType.DATE)
     private Date pubDate;
-    @Column(name = "site_url")
-    private Long siteUrlId;
 
-    public News(String title, String link, Date pubDate, Long siteUrl) {
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "site_id")
+    private Site site;
+
+    public News(String title, String link, Date pubDate, Site site) {
         this.title = title;
         this.link = link;
         this.pubDate = pubDate;
-        this.siteUrlId = siteUrl;
+        this.site = site;
     }
 
     public News() {
     }
 
-
-    public Long getSiteUrl() {
-        return siteUrlId;
+    public Site getSite() {
+        return site;
     }
 
-    public void setSiteUrl(Long siteUrl) {
-        this.siteUrlId = siteUrl;
+    public void setSite(Site site) {
+        this.site = site;
     }
+
 
     public String getTitle() {
         return title;
