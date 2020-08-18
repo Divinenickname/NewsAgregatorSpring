@@ -2,55 +2,69 @@ package com.example.parser;
 
 import com.example.domain.News;
 import com.example.domain.Site;
-import com.example.exception.URLNotFoundInDBException;
-import com.example.repos.NewsRepo;
-import com.example.repos.SiteRepo;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class VCRUParser extends AbstractParser implements IParser{
+@Component
+public class VCRUParser{
+    Logger logger = LoggerFactory.getLogger(VCRUParser.class);
+    private Site site;
 
-    private final NewsRepo newsRepo;
-    private final SiteRepo siteRepo;
-
-    @Autowired
-    public VCRUParser(NewsRepo newsRepo, SiteRepo siteRepo) {
-        this.newsRepo = newsRepo;
-        this.siteRepo = siteRepo;
+    public VCRUParser(Site site){
+        this.site = site;
     }
 
-    @Override
-    public void parse(String url) throws IOException, URLNotFoundInDBException {
-        if (!isCorrectSite(url, siteRepo)) throw new URLNotFoundInDBException(url+ " URL not found in DB");
+    public VCRUParser() {
+    }
 
-        Document doc = Jsoup.connect(url).get();
+    public List<News> parse() throws IOException {
+        List<News> newsList = new ArrayList<>();
 
-        Elements urls = doc.select("div.feed__item > div.content-feed > a");
-        Elements titles = doc.select("div.feed__item > div.content-feed > div.content-header > h2.content-header__title");
-        Elements dates = doc.select("div.feed__item > div.content-feed > div.content-header > div.content-header__info > div.content-header__left > div.content-header-number > a > time.time");
-        for (int i = 0; i < urls.size(); i++) {
-            String title = titles.get(i).text();
-            String itemLink = urls.get(i).attr("href");
-            Timestamp timestamp = new Timestamp(TimeUnit.SECONDS.toMillis(Long.parseLong(dates.get(i).attr("data-date"))));
-            Date pubDate = new Date(timestamp.getTime());
+        Document doc = Jsoup.connect(site.getUrl()).get();
+        Elements node = doc.select("div.feed__item");
 
-            int count = (int) newsRepo.findUniqueByURL(itemLink, PageRequest.of(1, 1)).getTotalElements();
-            if( count== 0){
-                Site site = siteRepo.findOneByUrl(url);
-                News item = new News(title, itemLink, pubDate, site);
-                System.out.println(item.getTitle());
-                newsRepo.save(item);
+        String titlePath = "div.content-feed > div.content-header > h2.content-header__title";
+        String linkPath = "div.content-feed > a";
+        String timestampPath = "div.content-feed > div.content-header > div.content-header__info > div.content-header__left > div.content-header-number > a > time.time";
+
+
+        for (Element element : node) {
+            String title;
+            String link;
+            String tmpDate;
+            Date pubDate;
+
+
+            Elements child = element.children();
+            try{
+                title = child.select(titlePath).get(0).text();
+                link = child.select(linkPath).get(0).attr("href");
+                tmpDate = child.select(timestampPath).get(0).attr("data-date");
+                pubDate = new Date(new Timestamp(TimeUnit.SECONDS.toMillis(Long.parseLong(tmpDate))).getTime());
+
+                News newsItem = new News(title, link, pubDate, site);
+                newsList.add(newsItem);
+            }
+            catch (Exception ex){
+                logger.info("News has no any title, it was missed!");
             }
 
+
         }
+
+        return newsList;
     }
 
 }
