@@ -77,7 +77,7 @@ public class News {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getTitle());
+        return Objects.hashCode(getTitle().toLowerCase());
     }
 
     @Override
