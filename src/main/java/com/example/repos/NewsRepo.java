@@ -1,6 +1,7 @@
 package com.example.repos;
 
 import com.example.domain.News;
+import com.example.domain.dto.NewsDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +24,5 @@ public interface NewsRepo extends CrudRepository<News, Integer> {
 
     News findOneByLink(String link);
     News findOneByTitle(String title);
+    Page<NewsDTO> findAll(Pageable pageable);
 }

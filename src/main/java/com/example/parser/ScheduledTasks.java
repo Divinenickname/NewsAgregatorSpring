@@ -6,7 +6,6 @@ import com.rometools.rome.io.FeedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 
 @Component
@@ -30,6 +29,5 @@ public class ScheduledTasks {
     public void RSSScheduler() throws IOException, FeedException{
         newsService.saveNewsList(newsService.removeDublicates(parser.parse()));
         newsService.saveNewsList(newsService.removeDublicates(vcruParser.parse()));
-
     }
 }

@@ -77,7 +77,7 @@ public class News {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getTitle());
+        return Objects.hashCode(getTitle().toLowerCase());
     }
 
     @Override
@@ -85,6 +85,6 @@ public class News {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         News news = (News) o;
-        return Objects.equals(title, news.title);
+        return Objects.equals(title.toLowerCase(), news.title.toLowerCase());
     }
 }
