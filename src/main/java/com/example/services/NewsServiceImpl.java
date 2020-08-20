@@ -1,11 +1,8 @@
 package com.example.services;
 
 import com.example.domain.News;
-import com.example.domain.dto.NewsDTO;
 import com.example.repos.NewsRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -43,12 +40,12 @@ public class NewsServiceImpl implements NewsService{
     }
 
     @Override
-    public List<NewsDTO> findAll() {
-        List<NewsDTO> dto = new ArrayList<>();
+    public List<News> findAll() {
+        List<News> dto = new ArrayList<>();
         Iterable<News> iterable = newsRepo.findAll();
 
         for(News item : iterable){
-            dto.add(new NewsDTO(item));
+            dto.add(item);
         }
 
         return dto;
