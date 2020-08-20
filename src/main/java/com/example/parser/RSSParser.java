@@ -25,16 +25,22 @@ public class RSSParser implements IParser{
 
 
     @Override
-    public List<News> parse() throws IOException, FeedException {
+    public List<News> parse() throws IOException {
         List<News> newsList = new ArrayList<>();
         SyndFeedInput input = new SyndFeedInput();
-        SyndFeed feed = input.build(new XmlReader(new URL(site.getUrl())));
-        List<SyndEntry> entryList = feed.getEntries();
 
-        for(SyndEntry entry : entryList){
-            News newsItem = new News(entry.getTitle(), entry.getLink(), entry.getPublishedDate(), site);
-            newsList.add(newsItem);
+        try {
+            SyndFeed feed = input.build(new XmlReader(new URL(site.getUrl())));
+            List<SyndEntry> entryList = feed.getEntries();
+
+            for(SyndEntry entry : entryList){
+                News newsItem = new News(entry.getTitle(), entry.getLink(), entry.getPublishedDate(), site);
+                newsList.add(newsItem);
+            }
+        } catch (FeedException e) {
+            e.printStackTrace();
         }
+
 
         return newsList;
     }
