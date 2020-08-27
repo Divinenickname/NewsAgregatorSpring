@@ -3,14 +3,11 @@ package com.example.controller;
 import com.example.domain.News;
 import com.example.domain.Views;
 import com.example.domain.dto.NewsDTO;
+import com.example.domain.dto.NewsDTOMapper;
 import com.example.repos.NewsRepo;
 import com.example.services.NewsService;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,6 +20,7 @@ import java.util.Map;
 
 @Controller
 public class NewsController {
+    NewsDTOMapper mapper = new NewsDTOMapper();
     @Autowired
     NewsRepo newsRepo;
     @Autowired
@@ -39,7 +37,7 @@ public class NewsController {
     @GetMapping(value = "/news")
     @ResponseBody
     public String StringResponse(){
-        List<NewsDTO> list = newsService.findAll();
+        List<NewsDTO> list = mapper.listToDTO(newsService.findAll());
         return list.toString();
     }
 
@@ -55,8 +53,8 @@ public class NewsController {
     @GetMapping(value = "/get")
     @ResponseBody
     @JsonView(Views.TitleLink.class)
-    public List<News> getNews(@RequestParam(value = "str") String str){
+    public List<NewsDTO> getNews(@RequestParam(value = "str") String str){
 
-        return newsRepo.findByTitleLike(str);
+        return mapper.listToDTO(newsRepo.findByTitleLike(str));
     }
 }
